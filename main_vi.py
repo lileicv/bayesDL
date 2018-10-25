@@ -26,8 +26,8 @@ class VariationalDense:
         self.b_mu = tf.Variable(tf.zeros([n_out]))
         self.b_logsigma = tf.Variable(tf.zeros([n_out]))
 
-        epsilon_w = tf.random_normal([n_in, n_out], mean=0., stddev=0.1)
-        epsilon_b = tf.random_normal([n_out], mean=0., stddev=0.1)
+        epsilon_w = tf.random_normal([n_in, n_out], mean=0., stddev=0.1)# error, if set stddev=1
+        epsilon_b = tf.random_normal([n_out], mean=0., stddev=0.1)      # error, if set stddev=1
         #self.W = self.W_mu + tf.multiply(tf.log(1.+tf.exp(self.W_logsigma)), epsilon_w)
         #self.b = self.b_mu + tf.multiply(tf.log(1.+tf.exp(self.b_logsigma)), epsilon_b)
         self.W = self.W_mu + tf.multiply(tf.exp(self.W_logsigma), epsilon_w)
