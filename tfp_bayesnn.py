@@ -27,20 +27,27 @@ n_sample = 100
 X = np.random.normal(size=(n_sample,1))
 Y = np.random.normal(np.cos(5.*X)/(np.abs(X)+1.), 0.1)
 X_pred = np.atleast_2d(np.linspace(-3,3,num=100)).T
+plt.figure(0)
+plt.plot(X,Y,'r.')
+plt.savefig('./toydataset.png')
+plt.close()
 
 # Build the model
 X_ = tf.placeholder(tf.float32, shape=[None, 1])
 Y_ = tf.placeholder(tf.float32, shape=[None, 1])
 x_in = tf.keras.Input(tensor=X_)
-x = tfp.layers.DenseFlipout(128,activation='relu')(x_in)
-x = tfp.layers.DenseFlipout(128,activation='relu')(x)
+x = tfp.layers.DenseFlipout(50,activation='relu')(x_in)
+x = tfp.layers.DenseFlipout(50,activation='relu')(x)
 x_out = tf.keras.layers.Dense(1)(x)
 model = tf.keras.Model(inputs=x_in,outputs=x_out)
 
 norm = tfp.distributions.Normal(Y_, 0.1)
 log_likelihood = tf.reduce_sum(norm.log_prob(x_out))
 kl = sum(model.losses)
-elbo_loss = -log_likelihood + kl
+elbo_loss = -log_likelihood #+ kl
+# 如果把这个kl loss项注释掉，那么随着训练迭代，随机抽样的模型不会在不确定区域表现出波动性。
+# 推测如果没有 kl,通过学习，权重的方差在学习过程中会越来越小，趋于0，最后权重会变成确定性的
+
 
 train_op = tf.train.AdamOptimizer(0.001).minimize(elbo_loss)
 mse = tf.reduce_sum(tf.square(Y_-x_out))/n_sample
